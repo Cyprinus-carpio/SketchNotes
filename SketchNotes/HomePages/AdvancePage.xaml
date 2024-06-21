@@ -1,0 +1,66 @@
+﻿<Page
+    x:Class="SketchNotes.HomePages.AdvancePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SketchNotes.HomePages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:ui="using:CommunityToolkit.WinUI"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <Style x:Key="SettingsSectionHeaderTextBlockStyle"
+               BasedOn="{StaticResource BodyStrongTextBlockStyle}"
+               TargetType="TextBlock">
+            <Style.Setters>
+                <Setter Property="Margin"
+                        Value="0,28,0,4" />
+            </Style.Setters>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <ScrollViewer>
+            <Grid>
+                <StackPanel Margin="56,0,56,8"
+                            MaxWidth="1000"
+                            Spacing="4">
+                    <StackPanel.ChildrenTransitions>
+                        <TransitionCollection>
+                            <EntranceThemeTransition IsStaggeringEnabled="True" />
+                        </TransitionCollection>
+                    </StackPanel.ChildrenTransitions>
+                    <TextBlock Style="{StaticResource TitleTextBlockStyle}"
+                               Margin="0,28,0,0"
+                               Text="高级" />
+                    <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+                               Text="Microsoft Defender SmartScreen" />
+                    <controls:SettingsCard Header="Microsoft Defender SmartScreen"
+                                           Description="对 Web 页启用 Microsoft Defender SmartScreen"
+                                           HeaderIcon="{ui:FontIcon Glyph=&#xF8A5;}">
+                        <ToggleSwitch />
+                    </controls:SettingsCard>
+                    <controls:SettingsCard x:Name="CheckSmartScreenSettingsCard"
+                                           Header="检验 Microsoft Defender SmartScreen 是否在工作"
+                                           Description="打开 Microsoft Defender SmartScreen 测试页"
+                                           HeaderIcon="{ui:FontIcon Glyph=&#xE7EF;}"
+                                           ActionIcon="{ui:FontIcon Glyph=&#xE8A7;}"
+                                           IsClickEnabled="True"
+                                           Click="CheckSmartScreenSettingsCard_Click" />
+                    <controls:SettingsCard x:Name="WindowsDefenderSettingsCard"
+                                           Header="Windows 安全中心"
+                                           Description="转到 Windows 安全中心"
+                                           ActionIcon="{ui:FontIcon Glyph=&#xE8A7;}"
+                                           IsClickEnabled="True"
+                                           Click="WindowsDefenderSettingsCard_Click">
+                        <controls:SettingsCard.HeaderIcon>
+                            <muxc:ImageIcon Source="ms-appx:///Assets/WindowsDefenderLogo.png" />
+                        </controls:SettingsCard.HeaderIcon>
+                    </controls:SettingsCard>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</Page>

@@ -1,0 +1,92 @@
+﻿<Page
+    x:Class="SketchNotes.TabPages.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SketchNotes.TabPages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    mc:Ignorable="d"
+    Unloaded="Page_Unloaded">
+
+    <Grid>
+        <MediaElement x:Name="MainMediaElement"
+                      x:FieldModifier="Public"
+                      AutoPlay="True"
+                      IsLooping="True"
+                      Stretch="UniformToFill"
+                      Opacity="0.5" />
+        <muxc:NavigationView x:Name="MainNavigationView"
+                             x:FieldModifier="Public"
+                             VerticalAlignment="Top"
+                             HorizontalAlignment="Stretch"
+                             PaneDisplayMode="Top"
+                             IsSettingsVisible="False"
+                             BackRequested="MainNavigationView_BackRequested"
+                             ItemInvoked="MainNavigationView_ItemInvoked"
+                             Loaded="MainNavigationView_Loaded">
+            <muxc:NavigationView.MenuItems>
+                <muxc:NavigationViewItem Content="主页"
+                                         Tag="Home">
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon 
+                                  Glyph="&#xE80F;" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem Content="常规"
+                                         Tag="Default">
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon 
+                                  Glyph="&#xE713;" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem Content="扩展"
+                                         Tag="Extensions">
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon 
+                                  Glyph="&#xEA86;" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem Content="存储"
+                                         Tag="Recovery">
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon 
+                                  Glyph="&#xEDA2;" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem Content="高级"
+                                         Tag="Advance">
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon 
+                                  Glyph="&#xEB3C;" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem Content="账户"
+                                         Tag="Account">
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon 
+                                  Glyph="&#xE77B;" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+                <muxc:NavigationViewItem Content="关于"
+                                         Tag="About">
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE946;" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+            </muxc:NavigationView.MenuItems>
+            <muxc:NavigationView.FooterMenuItems>
+                <muxc:NavigationViewItem Content="睡眠"
+                                         Tag="Sleep">
+                    <muxc:NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE708;" />
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+            </muxc:NavigationView.FooterMenuItems>
+        </muxc:NavigationView>
+        <Frame x:Name="ContentFrame"
+               Margin="0,48,0,100"
+               VerticalAlignment="Stretch"
+               HorizontalAlignment="Stretch" />
+    </Grid>
+</Page>

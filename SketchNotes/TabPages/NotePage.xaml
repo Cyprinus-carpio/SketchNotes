@@ -1,0 +1,772 @@
+<Page x:Class="SketchNotes.TabPages.NotePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:developerTools="using:CommunityToolkit.WinUI.DeveloperTools"
+      xmlns:local="using:SketchNotes.TabPages"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+      Unloaded="Page_Unloaded"
+      mc:Ignorable="d">
+
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="ms-appx:///MainDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <converters:VisibilityToBoolConverter x:Key="VisibilityToBoolConverter" />
+        </ResourceDictionary>
+    </Page.Resources>
+
+    <Grid>
+        <RefreshContainer x:Name="MainRefreshContainer"
+                          Margin="0,0,0,100"
+                          PullDirection="BottomToTop"
+                          RefreshRequested="MainRefreshContainer_RefreshRequested">
+            <RefreshContainer.Visualizer>
+                <RefreshVisualizer>
+                    <RefreshVisualizer.Content>
+                        <FontIcon Glyph="&#xE74B;" />
+                    </RefreshVisualizer.Content>
+                </RefreshVisualizer>
+            </RefreshContainer.Visualizer>
+            <ScrollViewer x:Name="MainScrollViewer"
+                          HorizontalScrollBarVisibility="Auto"
+                          HorizontalScrollMode="Auto"
+                          Loaded="MainScrollViewer_Loaded"
+                          MaxZoomFactor="10"
+                          MinZoomFactor="0.1"
+                          VerticalScrollBarVisibility="Auto"
+                          VerticalScrollMode="Auto"
+                          ViewChanged="MainScrollViewer_ViewChanged"
+                          ViewChanging="MainScrollViewer_ViewChanging"
+                          ZoomMode="Enabled">
+                <Grid x:Name="MainGrid"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center">
+                    <Border BorderThickness="100,100,100,100">
+                        <Border BorderBrush="{ThemeResource AppBarSeparatorForegroundThemeBrush}"
+                                BorderThickness="1,1,1,1"
+                                CornerRadius="4,4,4,4">
+                            <Grid Background="{ThemeResource CanvasBrush}">
+                                <StackPanel x:Name="MainStackPanel" />
+                                <Grid>
+                                    <developerTools:AlignmentGrid x:Name="MainAlignmentGrid"
+                                                                  HorizontalStep="25"
+                                                                  LineBrush="{ThemeResource ApplicationForegroundThemeBrush}"
+                                                                  Opacity="0.2"
+                                                                  VerticalStep="25"
+                                                                  Visibility="Collapsed" />
+                                    <Canvas x:Name="MainCanvas" />
+                                    <Canvas x:Name="SelectionCanvas" />
+                                    <InkCanvas x:Name="MainInkCanvas"
+                                               x:FieldModifier="Public" />
+                                    <Button x:Name="DragBtn"
+                                            Click="DragBtn_Click"
+                                            ManipulationCompleted="DragBtn_ManipulationCompleted"
+                                            ManipulationDelta="DragBtn_ManipulationDelta"
+                                            ManipulationMode="All"
+                                            Style="{ThemeResource DragBtnStyle}"
+                                            Visibility="Collapsed" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </Border>
+                </Grid>
+            </ScrollViewer>
+        </RefreshContainer>
+        <muxc:ProgressBar x:Name="ReplayProgressBar"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Bottom"
+                          Visibility="Collapsed" />
+        <muxc:ProgressBar x:Name="SpeechBufferProgressBar"
+                          Margin="0,0,0,100"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Bottom"
+                          Opacity="0.5"
+                          Visibility="Collapsed" />
+        <muxc:ProgressBar x:Name="SpeechPlayProgressBar"
+                          Margin="0,0,0,100"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Bottom"
+                          Visibility="Collapsed" />
+        <StackPanel HorizontalAlignment="Stretch"
+                    VerticalAlignment="Bottom">
+            <Pivot x:Name="MainPivot"
+                   MaxWidth="520"
+                   Margin="188,0,188,10"
+                   HorizontalAlignment="Center"
+                   SelectedIndex="1"
+                   SelectionChanged="MainPivot_SelectionChanged">
+                <Pivot.Transitions>
+                    <TransitionCollection>
+                        <RepositionThemeTransition />
+                    </TransitionCollection>
+                </Pivot.Transitions>
+                <Pivot.RightHeader>
+                    <StackPanel Margin="10,0,10,0"
+                                VerticalAlignment="Bottom"
+                                Orientation="Horizontal">
+                        <Button x:Name="ScrollDownBtn"
+                                Height="36"
+                                Margin="-4,0,0,0"
+                                Click="ScrollDownBtn_Click"
+                                Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                ToolTipService.ToolTip="向下滚动">
+                            <FontIcon FontSize="16"
+                                      Glyph="&#xE74B;" />
+                        </Button>
+                        <AppBarSeparator />
+                        <Button x:Name="UndoBtn"
+                                Height="36"
+                                Margin="4,0,0,0"
+                                IsEnabled="False"
+                                Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                ToolTipService.ToolTip="撤销">
+                            <FontIcon FontSize="16"
+                                      Glyph="&#xE7A7;" />
+                        </Button>
+                        <Button x:Name="RedoBtn"
+                                Height="36"
+                                Margin="-4,0,-4,0"
+                                IsEnabled="False"
+                                Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                ToolTipService.ToolTip="恢复">
+                            <FontIcon FontSize="16"
+                                      Glyph="&#xE7A6;" />
+                        </Button>
+                    </StackPanel>
+                </Pivot.RightHeader>
+                <PivotItem>
+                    <PivotItem.Header>
+                        <TextBlock Margin="0,0,0,-16"
+                                   FontSize="14"
+                                   Text="文件" />
+                    </PivotItem.Header>
+                    <ScrollViewer Margin="0,2,0,2"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Disabled"
+                                  VerticalScrollMode="Disabled">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Margin="-2,0,0,0"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="打开文件">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xED25;" />
+                                <Button.Flyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem x:Name="OpenInkFileMenuFlyoutItem"
+                                                        Click="OpenInkFileMenuFlyoutItem_Click"
+                                                        Text="打开墨迹文件">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon FontSize="16"
+                                                          Glyph="&#xE7E6;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutItem Text="打开画布文件">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon FontSize="16"
+                                                          Glyph="&#xE929;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutItem Text="打开可迁移的墨迹文件">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon FontSize="16"
+                                                          Glyph="&#xE7B8;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutSeparator />
+                                        <MenuFlyoutItem Text="打开 SketchNotes 笔记本">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon FontSize="16"
+                                                          Glyph="&#xE82D;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                    </MenuFlyout>
+                                </Button.Flyout>
+                            </Button>
+                            <Button Margin="-4,0,0,0"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="保存文件">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE74E;" />
+                            </Button>
+                            <Button Margin="-4,0,0,0"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="导出">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xEDE1;" />
+                            </Button>
+                            <AppBarSeparator />
+                            <Button Margin="4,0,-6,0"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="共享">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE72D;" />
+                            </Button>
+                            <Button Margin="4,0,0,0"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="发送到附近的 SketchNotes">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE724;" />
+                            </Button>
+                            <AppBarSeparator />
+                            <Button Margin="4,0,-6,0"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="打印">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE749;" />
+                            </Button>
+                        </StackPanel>
+                    </ScrollViewer>
+                </PivotItem>
+                <PivotItem>
+                    <PivotItem.Header>
+                        <TextBlock Margin="0,0,0,-16"
+                                   FontSize="14"
+                                   Text="绘图" />
+                    </PivotItem.Header>
+                    <ScrollViewer Margin="0,2,0,2"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Disabled"
+                                  VerticalScrollMode="Disabled">
+                        <StackPanel Orientation="Horizontal">
+                            <InkToolbar x:Name="MainInkToolbar"
+                                        Margin="-4,-2,0,-2"
+                                        InitialControls="AllExceptPens"
+                                        TargetInkCanvas="{x:Bind Path=MainInkCanvas}">
+                                <InkToolbarBallpointPenButton x:Name="MainBallpointPen" />
+                                <InkToolbarPencilButton x:Name="MainPencil" />
+                                <InkToolbarHighlighterButton x:Name="MainHighlighter" />
+                                <InkToolbarCustomPenButton x:Name="MoveInkToolbarCustomPenButton"
+                                                           Checked="MoveInkToolbarCustomPenButton_Checked"
+                                                           ToolTipService.ToolTip="选择"
+                                                           Unchecked="MoveInkToolbarCustomPenButton_Unchecked">
+                                    <FontIcon FontSize="16"
+                                              Glyph="&#xE8B0;" />
+                                    <InkToolbarCustomPenButton.ConfigurationContent>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button x:Name="LeftBtn"
+                                                    Click="LeftBtn_Click"
+                                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                                    ToolTipService.ToolTip="向左滚动">
+                                                <FontIcon FontSize="16"
+                                                          Glyph="&#xE973;" />
+                                            </Button>
+                                            <Button x:Name="UpBtn"
+                                                    Margin="-4,0,0,0"
+                                                    Click="UpBtn_Click"
+                                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                                    ToolTipService.ToolTip="向上滚动">
+                                                <FontIcon FontSize="16"
+                                                          Glyph="&#xE971;" />
+                                            </Button>
+                                            <Button x:Name="RightBtn"
+                                                    Margin="-4,0,0,0"
+                                                    Click="RightBtn_Click"
+                                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                                    ToolTipService.ToolTip="向右滚动">
+                                                <FontIcon FontSize="16"
+                                                          Glyph="&#xE974;" />
+                                            </Button>
+                                            <Button x:Name="DownBtn"
+                                                    Margin="-4,0,-4,0"
+                                                    Click="UpBtn_Click"
+                                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                                    ToolTipService.ToolTip="向下滚动">
+                                                <FontIcon FontSize="16"
+                                                          Glyph="&#xE972;" />
+                                            </Button>
+                                        </StackPanel>
+                                    </InkToolbarCustomPenButton.ConfigurationContent>
+                                </InkToolbarCustomPenButton>
+                                <InkToolbarCustomPenButton x:Name="SelectionInkToolbarCustomPenButton"
+                                                           Checked="SelectionInkToolbarCustomPenButton_Checked"
+                                                           ToolTipService.ToolTip="套索选择">
+                                    <FontIcon FontSize="16"
+                                              Glyph="&#xEF20;" />
+                                </InkToolbarCustomPenButton>
+                                <InkToolbarEraserButton />
+                            </InkToolbar>
+                            <AppBarSeparator Margin="2,0,0,0" />
+                            <Button x:Name="ClearBtn"
+                                    Margin="4,0,-6,0"
+                                    Click="ClearBtn_Click"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="清空画布">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xEA99;" />
+                            </Button>
+                        </StackPanel>
+                    </ScrollViewer>
+                </PivotItem>
+                <PivotItem>
+                    <PivotItem.Header>
+                        <TextBlock Margin="0,0,0,-16"
+                                   FontSize="14"
+                                   Text="插入" />
+                    </PivotItem.Header>
+                    <ScrollViewer Margin="0,2,0,2"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Disabled"
+                                  VerticalScrollMode="Disabled">
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="InsertImageBtn"
+                                    Margin="-2,0,0,0"
+                                    Click="InsertImageBtn_Click"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="插入图片">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE8B9;" />
+                            </Button>
+                            <Button x:Name="LockBtn"
+                                    Margin="-4,0,0,0"
+                                    x:FieldModifier="Public"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="锁定画面">
+                                <FontIcon x:Name="LockFontIcon"
+                                          x:FieldModifier="Public"
+                                          FontSize="16" />
+                            </Button>
+                            <AppBarSeparator />
+                            <Button x:Name="StartRecordingBtn"
+                                    Margin="4,0,0,0"
+                                    x:FieldModifier="Public"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="开始捕获">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xEA3A;" />
+                            </Button>
+                            <Button x:Name="EndRecordingBtn"
+                                    Margin="-4,0,0,0"
+                                    x:FieldModifier="Public"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="停止捕获">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE71A;" />
+                            </Button>
+                            <AppBarSeparator />
+                            <Button x:Name="ScreenClipBtn"
+                                    Margin="4,0,-6,0"
+                                    x:FieldModifier="Public"
+                                    Click="ScreenClipBtn_Click"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="屏幕截图">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE924;" />
+                            </Button>
+                        </StackPanel>
+                    </ScrollViewer>
+                </PivotItem>
+                <PivotItem>
+                    <PivotItem.Header>
+                        <TextBlock Margin="0,0,0,-16"
+                                   FontSize="14"
+                                   Text="视图" />
+                    </PivotItem.Header>
+                    <ScrollViewer Margin="0,2,0,2"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Disabled"
+                                  VerticalScrollMode="Disabled">
+                        <StackPanel Orientation="Horizontal">
+                            <InkToolbarCustomToggleButton x:Name="MainTouchToggleButton"
+                                                          Margin="0,0,2,0"
+                                                          Checked="OnTouchToggleButton_Checked"
+                                                          IsChecked="True"
+                                                          ToolTipService.ToolTip="触摸写入"
+                                                          Unchecked="OnTouchToggleButton_Unchecked">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xED5F;" />
+                            </InkToolbarCustomToggleButton>
+                            <InkToolbarCustomToggleButton x:Name="AutoMoveToggleButton"
+                                                          ToolTipService.ToolTip="自动滚动"
+                                                          Checked="AutoMoveToggleButton_Checked"
+                                                          Unchecked="AutoMoveToggleButton_Unchecked">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE9A1;" />
+                            </InkToolbarCustomToggleButton>
+                            <AppBarSeparator Margin="4,0,4,0" />
+                            <InkToolbarCustomToggleButton x:Name="SketchToggleButton"
+                                                          Margin="2,0,6,0"
+                                                          Checked="SketchToggleButton_Checked"
+                                                          ToolTipService.ToolTip="草稿纸"
+                                                          Unchecked="SketchToggleButton_Unchecked">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE70B;" />
+                            </InkToolbarCustomToggleButton>
+                            <AppBarSeparator />
+                            <InkToolbarCustomToggleButton x:Name="GridToggleButton"
+                                                          Margin="6,0,2,0"
+                                                          Checked="GridToggleButton_Checked"
+                                                          ToolTipService.ToolTip="网格"
+                                                          Unchecked="GridToggleButton_Unchecked">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE80A;" />
+                            </InkToolbarCustomToggleButton>
+                            <Button x:Name="SwitchThemeBtn"
+                                    Click="SwitchThemeBtn_Click"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="切换主题">
+                                <FontIcon x:Name="SwitchThemeFontIcon"
+                                          FontSize="16" />
+                            </Button>
+                            <AppBarSeparator />
+                            <Button x:Name="ResetViewBtn"
+                                    Margin="4,0,-6,0"
+                                    Click="ResetViewBtn_Click"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="重置视图">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE72C;" />
+                            </Button>
+                        </StackPanel>
+                    </ScrollViewer>
+                </PivotItem>
+                <PivotItem>
+                    <PivotItem.Header>
+                        <TextBlock Margin="0,0,0,-16"
+                                   FontSize="14"
+                                   Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                   Text="墨迹选项" />
+                    </PivotItem.Header>
+                    <ScrollViewer Margin="0,2,0,2"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Disabled"
+                                  VerticalScrollMode="Disabled">
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="CutBtn"
+                                    Margin="-2,0,0,0"
+                                    Click="CutBtn_Click"
+                                    IsEnabled="{Binding ElementName=DragBtn, Path=Visibility,Converter={StaticResource VisibilityToBoolConverter}}"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="剪切">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE8C6;" />
+                            </Button>
+                            <Button x:Name="CopyBtn"
+                                    Margin="-4,0,0,0"
+                                    Click="CopyBtn_Click"
+                                    IsEnabled="{Binding ElementName=DragBtn, Path=Visibility,Converter={StaticResource VisibilityToBoolConverter}}"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="复制">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE8C8;" />
+                            </Button>
+                            <Button x:Name="PastBtn"
+                                    Margin="-4,0,0,0"
+                                    Click="PastBtn_Click"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="粘贴">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE77F;" />
+                            </Button>
+                            <Button x:Name="DeleteBtn"
+                                    Margin="-4,0,0,0"
+                                    Click="DeleteBtn_Click"
+                                    IsEnabled="{Binding ElementName=DragBtn, Path=Visibility,Converter={StaticResource VisibilityToBoolConverter}}"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="删除">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE74D;" />
+                            </Button>
+                            <AppBarSeparator />
+                            <Button Margin="4,0,0,0"
+                                    IsEnabled="{Binding ElementName=DragBtn, Path=Visibility,Converter={StaticResource VisibilityToBoolConverter}}"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="颜色">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE790;" />
+                                <Button.Flyout>
+                                    <Flyout>
+                                        <muxc:ColorPicker x:Name="InkColorPicker"
+                                                          ColorChanged="InkColorPicker_ColorChanged"
+                                                          IsHexInputVisible="True"
+                                                          IsMoreButtonVisible="True" />
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+                            <Button Margin="-4,0,0,0"
+                                    IsEnabled="{Binding ElementName=DragBtn, Path=Visibility,Converter={StaticResource VisibilityToBoolConverter}}"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="墨迹类型">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xF463;" />
+                                <Button.Flyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem x:Name="CircleInkMenuFlyoutItem"
+                                                        Click="CircleInkMenuFlyoutItem_Click"
+                                                        Text="圆形笔头">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon FontSize="16"
+                                                          Glyph="&#xEA3A;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutItem x:Name="RectangleInkMenuFlyoutItem"
+                                                        Click="RectangleInkMenuFlyoutItem_Click"
+                                                        Text="矩形笔头">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon FontSize="16"
+                                                          Glyph="&#xE71A;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutSeparator />
+                                        <MenuFlyoutItem x:Name="OpaqueInkMenuFlyoutItem"
+                                                        Click="OpaqueInkMenuFlyoutItem_Click"
+                                                        Text="不透明墨迹">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon FontSize="16"
+                                                          Glyph="&#xE76D;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                        <MenuFlyoutItem x:Name="TransparentInkMenuFlyoutItem"
+                                                        Click="TransparentInkMenuFlyoutItem_Click"
+                                                        Text="透明墨迹">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon FontSize="16"
+                                                          Glyph="&#xE7E6;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
+                                    </MenuFlyout>
+                                </Button.Flyout>
+                            </Button>
+                            <AppBarSeparator />
+                            <InkToolbarCustomToggleButton x:Name="RecognitionToggleButton"
+                                                          Margin="6,0,6,0"
+                                                          ToolTipService.ToolTip="墨迹识别">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xF4A5;" />
+                            </InkToolbarCustomToggleButton>
+                            <AppBarSeparator />
+                            <Button x:Name="PlayInkBtn"
+                                    Margin="4,0,0,0"
+                                    Click="PlayInkBtn_Click"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="墨迹重播">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE768;" />
+                            </Button>
+                            <Button x:Name="StopInkBtn"
+                                    Margin="-4,0,-6,0"
+                                    Click="StopInkBtn_Click"
+                                    IsEnabled="False"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="停止重播">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE71A;" />
+                            </Button>
+                        </StackPanel>
+                    </ScrollViewer>
+                </PivotItem>
+                <PivotItem>
+                    <PivotItem.Header>
+                        <TextBlock Margin="0,0,0,-16"
+                                   FontSize="14"
+                                   Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                   Text="大声朗读" />
+                    </PivotItem.Header>
+                    <ScrollViewer Margin="0,2,0,2"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Disabled"
+                                  VerticalScrollMode="Disabled">
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="SpeechStartBtn"
+                                    Margin="-2,0,0,0"
+                                    Click="SpeechStartBtn_Click"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="开始朗读">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xEFA9;" />
+                            </Button>
+                            <AppBarSeparator />
+                            <Button x:Name="SpeechPreviousBtn"
+                                    Margin="4,0,0,0"
+                                    Click="SpeechPreviousBtn_Click"
+                                    IsEnabled="{Binding ElementName=SpeechPlayBtn, Path=IsEnabled}"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="上一句">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE892;" />
+                            </Button>
+                            <Button x:Name="SpeechPlayBtn"
+                                    Margin="-4,0,0,0"
+                                    Click="SpeechPlayBtn_Click"
+                                    IsEnabled="False"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="播放">
+                                <FontIcon x:Name="SpeechPlayFontIcon"
+                                          FontSize="16"
+                                          Glyph="&#xE768;" />
+                            </Button>
+                            <Button x:Name="SpeechNextBtn"
+                                    Margin="-4,0,0,0"
+                                    Click="SpeechNextBtn_Click"
+                                    IsEnabled="{Binding ElementName=SpeechPlayBtn, Path=IsEnabled}"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="下一句">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE893;" />
+                            </Button>
+                            <AppBarSeparator />
+                            <Button Margin="4,0,0,0"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="朗读选项">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE712;" />
+                                <Button.Flyout>
+                                    <Flyout>
+                                        <StackPanel Width="280">
+                                            <Slider x:Name="SpeechVolumeSlider"
+                                                    Header="音量"
+                                                    Maximum="100"
+                                                    Minimum="0"
+                                                    TickFrequency="20"
+                                                    TickPlacement="Outside"
+                                                    ValueChanged="SpeechVolumeSlider_ValueChanged"
+                                                    Value="100" />
+                                            <Slider x:Name="SpeechSpeedSlider"
+                                                    Margin="0,8,0,0"
+                                                    Header="速度"
+                                                    Maximum="5"
+                                                    Minimum="0.1"
+                                                    StepFrequency="0.1"
+                                                    TickFrequency="0.1"
+                                                    TickPlacement="Outside"
+                                                    ValueChanged="SpeechSpeedSlider_ValueChanged"
+                                                    Value="1" />
+                                        </StackPanel>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+                            <AppBarSeparator />
+                            <Button x:Name="SpeechSelectBtn"
+                                    Height="36"
+                                    Margin="6,0,2,0"
+                                    HorizontalContentAlignment="Left"
+                                    Click="SpeechSelectBtn_Click"
+                                    Background="Transparent"
+                                    BorderThickness="0,0,0,0"
+                                    Padding="10,8,10,8"
+                                    ToolTipService.ToolTip="选择角色">
+                                <StackPanel Orientation="Horizontal">
+                                    <FontIcon FontSize="16"
+                                              Glyph="&#xE748;" />
+                                    <TextBlock x:Name="SpeechNameTextBlock"
+                                               MaxWidth="96"
+                                               Margin="8,0,0,0"
+                                               Text="选择角色"
+                                               TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="高级选项">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE713;" />
+                                <Button.Flyout>
+                                    <Flyout>
+                                        <StackPanel Width="280">
+                                            <ComboBox x:Name="FormatComboBox"
+                                                      HorizontalAlignment="Stretch"
+                                                      Header="音频类型"
+                                                      SelectedIndex="1">
+                                                <ComboBoxItem Content=".wav" />
+                                                <ComboBoxItem Content=".mp3" />
+                                                <ComboBoxItem Content=".ogg" />
+                                                <ComboBoxItem Content=".flac" />
+                                            </ComboBox>
+                                            <muxc:NumberBox x:Name="SpeechLengthNumberBox"
+                                                            Margin="0,8,0,0"
+                                                            HorizontalAlignment="Stretch"
+                                                            Description="相对于正常速度调节语音长度"
+                                                            Header="语音长度"
+                                                            Maximum="10.00"
+                                                            Minimum="0.10"
+                                                            ValueChanged="SpeechNumberBox_OnValueChanged"
+                                                            Value="1.00" />
+                                            <muxc:NumberBox x:Name="SpeechSampleNoiseNumberBox"
+                                                            Margin="0,8,0,0"
+                                                            HorizontalAlignment="Stretch"
+                                                            Description="控制合成的随机性"
+                                                            Header="样本噪声"
+                                                            Maximum="1.00"
+                                                            Minimum="0.01"
+                                                            ValueChanged="SpeechNumberBox_OnValueChanged"
+                                                            Value="0.33" />
+                                            <muxc:NumberBox x:Name="SpeechRandomNoiseNumberBox"
+                                                            Margin="0,8,0,0"
+                                                            HorizontalAlignment="Stretch"
+                                                            Description="控制音素的发音长度"
+                                                            Header="随机时长预测器噪声"
+                                                            Maximum="1.00"
+                                                            Minimum="0.10"
+                                                            ValueChanged="SpeechNumberBox_OnValueChanged"
+                                                            Value="0.40" />
+                                            <muxc:InfoBar Title="参数更新"
+                                                          Margin="0,8,0,0"
+                                                          IsOpen="True"
+                                                          Message="新的参数将在下一个句子被生成时应用。"
+                                                          Severity="Informational" />
+                                        </StackPanel>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+                            <AppBarSeparator />
+                            <Button x:Name="SpeechDisposeBtn"
+                                    Margin="4,0,-6,0"
+                                    Click="SpeechDisposeBtn_Click"
+                                    IsEnabled="{Binding ElementName=SpeechPlayBtn, Path=IsEnabled}"
+                                    Style="{ThemeResource CommandBarFlyoutEllipsisButtonStyle}"
+                                    ToolTipService.ToolTip="关闭大声朗读">
+                                <FontIcon FontSize="16"
+                                          Glyph="&#xE711;" />
+                            </Button>
+                        </StackPanel>
+                    </ScrollViewer>
+                </PivotItem>
+            </Pivot>
+        </StackPanel>
+        <StackPanel x:Name="SubToolBar"
+                    Margin="0,0,24,124"
+                    Padding="4,4,4,4"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    Background="{ThemeResource SystemControlAcrylicElementBrush}"
+                    BorderBrush="{ThemeResource NavigationViewItemSeparatorForeground}"
+                    BorderThickness="1,1,1,1"
+                    CornerRadius="8,8,8,8"
+                    Orientation="Horizontal">
+            <StackPanel.Shadow>
+                <ThemeShadow />
+            </StackPanel.Shadow>
+            <InkToolbar x:Name="SubInkToolBar"
+                        Margin="-2,-4,-2,-4"
+                        InitialControls="None"
+                        TargetInkCanvas="{Binding ElementName=MainInkCanvas}"
+                        Visibility="Collapsed">
+                <InkToolbarBallpointPenButton x:Name="SubBallpointPen"
+                                              IsChecked="{Binding ElementName=MainBallpointPen, Path=IsChecked, Mode=TwoWay}" />
+                <InkToolbarEraserButton x:Name="SubEraserButton"
+                                        IsChecked="{Binding ElementName=MainEraserButton, Path=IsChecked, Mode=TwoWay}" />
+            </InkToolbar>
+            <AppBarSeparator x:Name="SubAppBarSeparator"
+                             Margin="4,0,4,0"
+                             Visibility="Collapsed" />
+            <InkToolbarCustomToggleButton x:Name="SubTouchToggleButton"
+                                          Checked="OnTouchToggleButton_Checked"
+                                          IsChecked="{Binding ElementName=MainTouchToggleButton, Path=IsChecked, Mode=TwoWay}"
+                                          ToolTipService.ToolTip="触摸写入"
+                                          Unchecked="OnTouchToggleButton_Unchecked">
+                <FontIcon FontSize="16"
+                          Glyph="&#xED5F;" />
+            </InkToolbarCustomToggleButton>
+        </StackPanel>
+        <muxc:TeachingTip x:Name="ExtendCanvasTeachingTip"
+                          Title="扩展画布"
+                          Subtitle="继续以扩展画布。"
+                          Target="{x:Bind ScrollDownBtn}">
+            <muxc:TeachingTip.IconSource>
+                <muxc:SymbolIconSource Symbol="Preview" />
+            </muxc:TeachingTip.IconSource>
+        </muxc:TeachingTip>
+    </Grid>
+</Page>

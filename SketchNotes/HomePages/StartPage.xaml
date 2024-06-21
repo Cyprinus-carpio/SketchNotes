@@ -1,0 +1,111 @@
+﻿<Page
+    x:Class="SketchNotes.TabPages.StartPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SketchNotes.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:ui="using:CommunityToolkit.WinUI"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <Style x:Key="SettingsSectionHeaderTextBlockStyle"
+               BasedOn="{StaticResource BodyStrongTextBlockStyle}"
+               TargetType="TextBlock">
+            <Style.Setters>
+                <Setter Property="Margin"
+                        Value="0,28,0,4" />
+            </Style.Setters>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <MediaElement x:Name="MainMediaElement"
+                      AutoPlay="True"
+                      IsLooping="True"
+                      Stretch="UniformToFill"
+                      Height="400"
+                      VerticalAlignment="Top"
+                      HorizontalAlignment="Stretch"
+                      Margin="0,-48,0,0" />
+        <ScrollViewer>
+            <Grid>
+                <StackPanel Margin="56,0,56,8"
+                            MaxWidth="1000"
+                            Spacing="4">
+                    <StackPanel.ChildrenTransitions>
+                        <TransitionCollection>
+                            <EntranceThemeTransition IsStaggeringEnabled="True" />
+                        </TransitionCollection>
+                    </StackPanel.ChildrenTransitions>
+                    <TextBlock Style="{StaticResource TitleTextBlockStyle}"
+                               Margin="0,28,0,0"
+                               Text="主页" />
+                    <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+                               Text="新建" />
+                    <ScrollViewer VerticalScrollMode="Disabled"
+                                  HorizontalScrollMode="Enabled"
+                                  VerticalScrollBarVisibility="Hidden"
+                                  HorizontalScrollBarVisibility="Auto">
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="8">
+                            <local:HeaderTile Tag="Note"
+                                              Title="笔记"
+                                              Description="3840 × 无限制 - 空白页"
+                                              Width="180"
+                                              Height="124"
+                                              TargetUri="mascot-sketchnotes://new/note">
+                                <local:HeaderTile.Source>
+                                    <FontIcon Glyph="&#xE7E6;" />
+                                </local:HeaderTile.Source>
+                            </local:HeaderTile>
+                            <local:HeaderTile Tag="Web"
+                                              Title="Web 页"
+                                              Description="1440 × 无限制 - Web 页"
+                                              Width="180"
+                                              Height="124"
+                                              TargetUri="mascot-sketchnotes://new/web">
+                                <local:HeaderTile.Source>
+                                    <FontIcon Glyph="&#xE7C3;" />
+                                </local:HeaderTile.Source>
+                            </local:HeaderTile>
+                            <local:HeaderTile Tag="Map"
+                                              Title="地图"
+                                              Description="自适应 - 地图页"
+                                              Width="180"
+                                              Height="124"
+                                              TargetUri="mascot-sketchnotes://new/map">
+                                <local:HeaderTile.Source>
+                                    <FontIcon Glyph="&#xE707;" />
+                                </local:HeaderTile.Source>
+                            </local:HeaderTile>
+                            <local:HeaderTile Tag="Capture"
+                                              Title="捕获"
+                                              Description="自定义 - 捕获页"
+                                              Width="180"
+                                              Height="124"
+                                              TargetUri="mascot-sketchnotes://new/capture">
+                                <local:HeaderTile.Source>
+                                    <FontIcon Glyph="&#xE714;" />
+                                </local:HeaderTile.Source>
+                            </local:HeaderTile>
+                        </StackPanel>
+                    </ScrollViewer>
+                    <TextBlock Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+                               Text="最近使用的文件" />
+                    <controls:SettingsCard x:Name="RecoverySettingsCard"
+                                           Header="恢复"
+                                           Description="恢复自动备份的文件"
+                                           IsClickEnabled="True"
+                                           HeaderIcon="{ui:FontIcon Glyph=&#xEBC4;}"
+                                           Click="RecoverySettingsCard_Click">
+                    </controls:SettingsCard>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</Page>

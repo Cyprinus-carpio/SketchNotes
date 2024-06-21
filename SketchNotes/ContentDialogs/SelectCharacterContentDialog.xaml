@@ -1,0 +1,69 @@
+﻿<ContentDialog
+    x:Class="SketchNotes.ContentDialogs.SelectCharacterContentDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SketchNotes.ContentDialogs"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    mc:Ignorable="d"
+    Title="选择角色"
+    PrimaryButtonText="确定"
+    SecondaryButtonText="取消"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    Loaded="ContentDialog_Loaded">
+
+    <ContentDialog.Resources>
+        <Style TargetType="local:SelectCharacterContentDialog"
+               BasedOn="{StaticResource DefaultContentDialogStyle}" />
+        <x:Double x:Key="ContentDialogMaxWidth">800</x:Double>
+    </ContentDialog.Resources>
+
+    <Grid Width="600">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <AutoSuggestBox x:Name="SearchAutoSuggestBox"
+                        Grid.Row="0"
+                        VerticalAlignment="Top"
+                        Height="32"
+                        PlaceholderText="搜索角色"
+                        QueryIcon="Find"
+                        QuerySubmitted="SearchAutoSuggestBox_QuerySubmitted" />
+        <muxc:ProgressRing x:Name="MainProgressRing"
+                           Grid.Row="0"
+                           IsActive="True"
+                           Margin="0,80,0,48" />
+        <muxc:InfoBar x:Name="ErrorInfoBar"
+                      Grid.Row="0"
+                      Severity="Error"
+                      Title="无法加载角色列表"
+                      Margin="0,40,0,0"
+                      IsClosable="False" />
+        <ListView x:Name="SpeechListView"
+                  Grid.Row="0"
+                  Margin="0,40,0,0"
+                  SelectionChanged="SpeechListView_SelectionChanged">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="8,8,8,8">
+                        <TextBlock Text="{Binding Name}" />
+                        <TextBlock Text="{Binding Language}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <StackPanel Grid.Row="1">
+            <TextBlock Text="已选择"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       Margin="0,16,0,0" />
+            <TextBlock x:Name="NameTextBlock" />
+            <TextBlock Text="ID"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       Margin="0,16,0,0" />
+            <TextBlock x:Name="IdTextBlock" />
+        </StackPanel>
+    </Grid>
+</ContentDialog>

@@ -1,0 +1,45 @@
+﻿<ContentDialog
+    x:Class="SketchNotes.ContentDialogs.SpeechContentDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SketchNotes.ContentDialogs"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="大声朗读"
+    PrimaryButtonText="继续"
+    SecondaryButtonText="取消"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    IsPrimaryButtonEnabled="False">
+
+    <ContentDialog.Resources>
+        <Style TargetType="local:SpeechContentDialog"
+               BasedOn="{StaticResource DefaultContentDialogStyle}" />
+        <x:Double x:Key="ContentDialogMaxWidth">800</x:Double>
+    </ContentDialog.Resources>
+    
+    <Grid Width="600">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBox x:Name="MainTextBox"
+                 Height="320"
+                 Grid.Row="0"
+                 TextWrapping="Wrap"
+                 AcceptsReturn="True"
+                 IsSpellCheckEnabled="{Binding ElementName=SpellCheckCheckBox,Path=IsChecked}"
+                 PlaceholderText="输入一些内容以朗读..."
+                 TextChanging="MainTextBox_TextChanging" />
+        <StackPanel Grid.Row="1">
+            <CheckBox x:Name="SpellCheckCheckBox"
+                      IsChecked="True"
+                      Content="启用拼写检查"
+                      Margin="0,8,0,0" />
+            <CheckBox x:Name="AddCheckBox"
+                      IsChecked="True"
+                      Content="将朗读内容追加到现有任务"
+                      Margin="0,8,0,0" />
+        </StackPanel>
+    </Grid>
+</ContentDialog>
