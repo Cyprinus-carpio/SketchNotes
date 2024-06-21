@@ -1277,6 +1277,7 @@ namespace SketchNotes.TabPages
             int id,
             bool addToExistence)
         {
+            SpeechDisposeBtn.IsEnabled = false;
             SpeechStartBtn.IsEnabled = false;
             SpeechPlayProgressBar.IsIndeterminate = true;
             SpeechPlayProgressBar.Visibility = Visibility.Visible;
@@ -1367,10 +1368,12 @@ namespace SketchNotes.TabPages
                     }
                 }
 
+                SpeechDisposeBtn.IsEnabled = true;
                 SpeechStartBtn.IsEnabled = true;
             }
             catch (Exception ex)
             {
+                SpeechDisposeBtn.IsEnabled = true;
                 SpeechStartBtn.IsEnabled = true;
                 SpeechPlayProgressBar.Visibility = Visibility.Collapsed;
                 SpeechBufferProgressBar.Visibility = Visibility.Collapsed;
