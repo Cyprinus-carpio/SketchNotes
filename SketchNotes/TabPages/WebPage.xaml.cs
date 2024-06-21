@@ -194,12 +194,12 @@ namespace SketchNotes.TabPages
             var liveBackground = container.Values["WebPageLiveBackground"];
             var opacityBackground = container.Values["WebPageOpacityBackground"];
 
-            if ((bool)enableBackground != false)
+            if ((string)enableBackground != "False")
             {
                 BackgroundMediaElement.PosterSource = new BitmapImage(
                     new Uri("ms-appx:///Assets/WebPage.jpg"));
 
-                if ((bool)liveBackground != false)
+                if ((string)liveBackground != "False")
                 {
                     BackgroundMediaElement.Source = new Uri("ms-appx:///Assets/WebPage.mp4");
                 }
