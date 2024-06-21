@@ -61,6 +61,7 @@ namespace SketchNotes
             {
                 throw new InvalidOperationException("Generic parameter 'TEnum' must be an enum.");
             }
+
             return (TEnum)Enum.Parse(typeof(TEnum), text);
         }
 
@@ -133,19 +134,30 @@ namespace SketchNotes
                 {
                     var deferral = args.GetDeferral();
 
-                    var dialog = new ContentDialog
+                    if (IsContentDialogOpen())
                     {
-                        Title = "SketchNotes",
-                        Content = "是否要关闭所有标签页？",
-                        PrimaryButtonText = "取消",
-                        SecondaryButtonText = "全部关闭",
-                    };
+                        MainPage.RootPage.SendNotification("需要关闭对话框",
+                            "关闭对话框以尝试退出 SketchNotes。",
+                            Microsoft.UI.Xaml.Controls.InfoBarSeverity.Error);
 
-                    var result = await dialog.ShowAsync();
-
-                    if (result == ContentDialogResult.Primary)
-                    {
                         args.Handled = true;
+                    }
+                    else
+                    {
+                        var dialog = new ContentDialog
+                        {
+                            Title = "SketchNotes",
+                            Content = "是否要关闭所有标签页？",
+                            PrimaryButtonText = "取消",
+                            SecondaryButtonText = "全部关闭",
+                        };
+
+                        var result = await dialog.ShowAsync();
+
+                        if (result == ContentDialogResult.Primary)
+                        {
+                            args.Handled = true;
+                        }
                     }
 
                     deferral.Complete();
