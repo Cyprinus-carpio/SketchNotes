@@ -9,7 +9,8 @@ namespace SketchNotes.TTS
         {         
             return Task.Run(() =>
             {
-                text = text.Replace(".", ".\n")
+                text = text.Replace("\n","")
+                    .Replace(".", ".\n")
                     .Replace("。", "。\n")
                     .Replace("!", "!\n")
                     .Replace("！", "！\n")

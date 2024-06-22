@@ -135,6 +135,7 @@ namespace SketchNotes.ContentDialogs
                 SpeechListView.SelectedIndex = 0;
             }
 
+            SpeechListView.ScrollIntoView(SpeechListView.SelectedItem);
             MainProgressRing.Visibility = Visibility.Collapsed;
         }
 
