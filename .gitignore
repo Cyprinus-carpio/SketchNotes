@@ -362,5 +362,11 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-# SketchNotes Tokens
+# SketchNotes
 Tokens.resw
+/SketchNotes/Assets/WebPage.mp4
+/SketchNotes/Assets/HomePage.mp4
+/SketchNotes/Assets/HomePage.jpg
+/SketchNotes/Assets/OOBEPage.mp4
+/SketchNotes/Assets/OOBEPage.jpg
+/SketchNotes/Assets/WebPage.jpg
