@@ -16,7 +16,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="ms-appx:///MainDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <converters:BoolToVisibilityConverter x:Key="VisibilityToBoolConverter" />
+            <converters:VisibilityToBoolConverter x:Key="VisibilityToBoolConverter" />
         </ResourceDictionary>
     </Page.Resources>
 
